@@ -1,0 +1,10 @@
+fastapi
+uvicorn
+mangum
+boto3
+firebase-admin
+pandas
+scikit-learn
+python-multipart
+httpx
+python-dotenv
