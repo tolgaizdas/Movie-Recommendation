@@ -5,6 +5,7 @@ import Home from './pages/Home';
 import Login from './pages/Login';
 import Signup from './pages/Signup';
 import Recommendations from './pages/Recommendations';
+import MyList from './pages/MyList';
 import PrivateRoute from './components/PrivateRoute'; // We need this
 
 function App() {
@@ -18,6 +19,11 @@ function App() {
           <Route path="/recommendations" element={
             <PrivateRoute>
               <Recommendations />
+            </PrivateRoute>
+          } />
+          <Route path="/mylist" element={
+            <PrivateRoute>
+              <MyList />
             </PrivateRoute>
           } />
         </Routes>

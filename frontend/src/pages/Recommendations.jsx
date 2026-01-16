@@ -14,9 +14,14 @@ export default function Recommendations() {
         async function fetchRecommendations() {
             if (!currentUser) return;
             try {
+                const token = await currentUser.getIdToken();
                 const response = await axios.post(`${API_URL}/recommendations/`, {
-                    user_id: currentUser.uid || "test_user",
+                    user_id: currentUser.uid,
                     num_recommendations: 6
+                }, {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
                 });
                 setRecommendations(response.data);
             } catch (error) {

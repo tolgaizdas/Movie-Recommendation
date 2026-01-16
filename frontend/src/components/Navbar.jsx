@@ -25,6 +25,7 @@ export default function Navbar() {
                     {currentUser ? (
                         <>
                             <Link to="/" className="text-gray-300 hover:text-white">Home</Link>
+                            <Link to="/mylist" className="text-gray-300 hover:text-white">My List</Link>
                             <Link to="/recommendations" className="text-gray-300 hover:text-white">Recommendations</Link>
                             <button
                                 onClick={handleLogout}

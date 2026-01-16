@@ -23,8 +23,14 @@ Resources:
   MovieFunction:
     Type: AWS::Serverless::Function
     Properties:
-      CodeUri: backend/
+      CodeUri: ../backend/
       Handler: main.handler
+      Runtime: python3.10
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: movies-table
+        - DynamoDBCrudPolicy:
+            TableName: ratings-table
       Events:
         ApiEvent:
           Type: Api
@@ -34,36 +40,12 @@ Resources:
             RestApiId: !Ref MovieRecommendationApi
       Environment:
         Variables:
-          MOVIES_TABLE: !Ref MoviesTable
-          RATINGS_TABLE: !Ref RatingsTable
-
-  MoviesTable:
-    Type: AWS::DynamoDB::Table
-    Properties:
-      TableName: movies-table
-      AttributeDefinitions:
-        - AttributeName: movie_id
-          AttributeType: S
-      KeySchema:
-        - AttributeName: movie_id
-          KeyType: HASH
-      BillingMode: PAY_PER_REQUEST
-
-  RatingsTable:
-    Type: AWS::DynamoDB::Table
-    Properties:
-      TableName: ratings-table
-      AttributeDefinitions:
-        - AttributeName: user_id
-          AttributeType: S
-        - AttributeName: movie_id
-          AttributeType: S
-      KeySchema:
-        - AttributeName: user_id
-          KeyType: HASH
-        - AttributeName: movie_id
-          KeyType: RANGE
-      BillingMode: PAY_PER_REQUEST
+          DYNAMODB_TABLENAME_MOVIES: movies-table
+          DYNAMODB_TABLENAME_RATINGS: ratings-table
+          # For prototype, we might skip Firebase Admin JSON path or handle it.
+          # The code currently mocks authentication if creds are missing.
+          # To make it work in Lambda, we would need to secret manager or inline json.
+          # For now, let it run in generic mode.
 
 Outputs:
   ApiUrl:

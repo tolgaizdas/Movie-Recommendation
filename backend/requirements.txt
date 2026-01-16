@@ -1,10 +1,11 @@
 fastapi
 uvicorn
 mangum
-boto3
+# boto3 (Provided by AWS Lambda runtime)
 firebase-admin
 pandas
-scikit-learn
+# scikit-learn (Removed to save space, implemented manually)
 python-multipart
 httpx
 python-dotenv
+redis
