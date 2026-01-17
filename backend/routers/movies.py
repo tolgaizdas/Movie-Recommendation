@@ -14,11 +14,11 @@ def get_movies(search: str = None):
     table = get_movies_table()
     try:
         if search:
-            # Correct Scan: Loop through all pages to search the whole DB
-            from boto3.dynamodb.conditions import Attr
+            # DynamoDB 'contains' is case-sensitive. 
+            # For case-insensitive search without a separate index, we scan and filter in Python.
+            # Dataset is small (~10k movies, <1MB projected), so this is performant for a prototype.
             
             scan_kwargs = {
-                'FilterExpression': Attr('title').contains(search),
                 'ProjectionExpression': "movie_id, title, genres, #y, average_rating",
                 'ExpressionAttributeNames': {"#y": "year"}
             }
@@ -26,21 +26,26 @@ def get_movies(search: str = None):
             done = False
             start_key = None
             items = []
+            search_lower = search.lower()
             
             while not done:
                 if start_key:
                     scan_kwargs['ExclusiveStartKey'] = start_key
                 
                 response = table.scan(**scan_kwargs)
-                items.extend(response.get('Items', []))
+                chunk = response.get('Items', [])
+                
+                for item in chunk:
+                    if search_lower in item.get('title', '').lower():
+                        items.append(item)
+                        if len(items) >= 20: 
+                            break
+                            
+                if len(items) >= 20:
+                    break
                 
                 start_key = response.get('LastEvaluatedKey', None)
                 done = start_key is None
-                
-                # Prototype safety: Don't return too many matches
-                if len(items) > 20: 
-                    items = items[:20]
-                    break
             
             print(f"Search: '{search}', Found: {len(items)}")
             return items
