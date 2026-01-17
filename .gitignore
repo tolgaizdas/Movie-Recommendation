@@ -83,7 +83,10 @@ infra/samconfig.toml
 # Project Specific
 backend/venv/
 backend/.env
-backend/scripts/
+backend/scripts/*
 frontend/.env
 frontend/dist/
 frontend/node_modules/
+backend/serviceAccountKey.json
+!backend/scripts/create_tables.py
+!backend/scripts/full_reset.py
