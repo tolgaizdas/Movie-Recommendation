@@ -12,6 +12,12 @@ router = APIRouter(
     tags=["ratings"]
 )
 
+# Need raw dynamo resource for batch_get_item
+import boto3
+import os
+REGION = os.environ.get("AWS_DEFAULT_REGION", "us-east-1")
+dynamodb = boto3.resource('dynamodb', region_name=REGION)
+
 class RatingRequest(BaseModel):
     movie_id: str
     rating: float
@@ -127,18 +133,40 @@ def get_user_ratings(user: dict = Depends(get_current_user)):
         if not ratings:
             return []
             
-        # 2. Get details for each movie (BatchGetItem is better but simple loop is okay for <100 items for prototype)
-        # Using BatchGetItem is robust.
-        # However, DynamoDB BatchGetItem requires Keys.
+        # 2. Get details for each movie (Optimized with BatchGetItem)
+        if not ratings:
+            return []
+            
+        movie_ids = list(set([r['movie_id'] for r in ratings]))
+        movies_map = {}
         
-        # Let's use a simple approach: Fetch all movie IDs then batch get.
-        from boto3.dynamodb.conditions import Key
-        
+        # BatchGetItem has a limit of 100 keys
+        chunk_size = 100
+        for i in range(0, len(movie_ids), chunk_size):
+            chunk = movie_ids[i:i + chunk_size]
+            keys = [{'movie_id': mid} for mid in chunk]
+            
+            batch_keys = {
+                movies_table.name: {
+                    'Keys': keys
+                }
+            }
+            
+            response = dynamodb.batch_get_item(RequestItems=batch_keys)
+            
+            # Collect results
+            for item in response.get('Responses', {}).get(movies_table.name, []):
+                movies_map[item['movie_id']] = item
+                
+            # Handle manual pagination for UnprocessedKeys if needed (rare for small batches but good practice)
+            while response.get('UnprocessedKeys'):
+                response = dynamodb.batch_get_item(RequestItems=response['UnprocessedKeys'])
+                for item in response.get('Responses', {}).get(movies_table.name, []):
+                    movies_map[item['movie_id']] = item
+
         results = []
         for r in ratings:
-             # Fetch individual movie (Optimization: Could use BatchGetItem here)
-             movie_resp = movies_table.get_item(Key={'movie_id': r['movie_id']})
-             movie = movie_resp.get('Item')
+             movie = movies_map.get(r['movie_id'])
              
              if movie:
                  # Use Pydantic model to compute average_rating
