@@ -1,8 +1,8 @@
 from fastapi import APIRouter, Depends
 from typing import List
-from ..models import Movie, RecommendationRequest
-from ..services.recommendation_engine import engine
-from ..auth import get_current_user
+from models import Movie, RecommendationRequest
+from services.recommendation_engine import engine
+from auth import get_current_user
 
 router = APIRouter(
     prefix="/recommendations",

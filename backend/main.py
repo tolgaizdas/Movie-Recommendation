@@ -20,7 +20,7 @@ app.add_middleware(
 def read_root():
     return {"message": "Movie Recommendation API is running!"}
 
-from .routers import movies, recommendations, ratings
+from routers import movies, recommendations, ratings
 
 app.include_router(movies.router)
 app.include_router(recommendations.router)

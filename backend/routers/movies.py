@@ -1,7 +1,7 @@
 from fastapi import APIRouter
 from typing import List
-from ..models import Movie
-from ..db import get_movies_table
+from models import Movie
+from db import get_movies_table
 from boto3.dynamodb.conditions import Key
 
 router = APIRouter(

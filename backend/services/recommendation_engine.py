@@ -1,7 +1,7 @@
 import pandas as pd
 from typing import List
-from ..models import Movie
-from ..db import get_movies_table, get_ratings_table
+from models import Movie
+from db import get_movies_table, get_ratings_table
 # from sklearn.metrics.pairwise import cosine_similarity (Removed for lambda size optimization)
 import time
 
